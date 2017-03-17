@@ -1,11 +1,12 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_thread.h>
 #include <stdio.h>
 #include <windows.h>
 #include <time.h>
 #include "spriteReader.h"
-
+#include "nothing.h"
 
 #define SOUND_EFFECT "plasma_ar3.wav"
 #define MUS_PATH "8 bit Aracde.mp3"
@@ -13,7 +14,7 @@
 int main(int argc, char** argv)
 {
     /* Initialisation simple */
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0 )
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) != 0 )
     {
         fprintf(stdout,"Échec de l'initialisation de la SDL (%s)\n",SDL_GetError());
         return -1;
@@ -82,11 +83,13 @@ int main(int argc, char** argv)
 
 
         SDL_Surface *mario_sprite = SDL_LoadBMP("char.bmp");
+        SDL_SetColorKey(mario_sprite,SDL_TRUE,SDL_MapRGB(mario_sprite->format, 255, 255, 255));
         SDL_Surface *mario_movement =SDL_CreateRGBSurface(0,20,40,32,0,0,0,0);
         mario_sprite->clip_rect.x=5;
         mario_sprite->clip_rect.y=20;
         SDL_BlitSurface(mario_sprite,&(mario_sprite->clip_rect),mario_movement,&(mario_movement->clip_rect));
         SDL_Texture *mario_text=SDL_CreateTextureFromSurface(sdlRenderer,mario_sprite);
+        //SDL_SetTextureAlphaMod(mario_text,0x00);
         SDL_RenderClear(sdlRenderer);
         SDL_SetRenderDrawColor(sdlRenderer, 255, 255,0,255);
         SDL_RenderCopy(sdlRenderer,mario_text,NULL, &(mario_movement->clip_rect));
@@ -96,10 +99,13 @@ int main(int argc, char** argv)
         SDL_RenderCopy(sdlRenderer,text,NULL, &(image_part->clip_rect));
         SDL_RenderPresent(sdlRenderer);
         SDL_Rect mdr = {50,50,60,82};
-        struct sprite* sp = initSprite(mario_text,(SDL_Rect){0,0,30,41},2,20);
+        struct sprite* sp = initSprite(mario_text,(SDL_Rect){0,0,30,42},(SDL_Rect){50,50,60,82},2,22,sdlRenderer);
+        SDL_TimerID timer;
+        timer = SDL_AddTimer(100,updatePosition,(void*)sp);
         while(continuer)
         {
-            SDL_PollEvent(&event);
+            //SDL_Delay(30);
+            SDL_WaitEvent(&event);
             switch(event.type)
             {
             case SDL_QUIT:
@@ -108,11 +114,44 @@ int main(int argc, char** argv)
                 Mix_CloseAudio();
                 break;
             case SDL_KEYDOWN:
-                mdr.x=(mdr.x+3)%640;
-                SDL_RenderClear(sdlRenderer);
-                SDL_SetRenderDrawColor(sdlRenderer, 255, 255, 0,255);
-                drawOnScreen(sdlRenderer,RIGHT,mdr,sp);
-                SDL_RenderPresent(sdlRenderer);
+                switch(event.key.keysym.sym) {
+                case SDLK_q:
+                    direct = LEFT;
+                    break;
+                case SDLK_s:
+                    direct = DOWN;
+                    break;
+                case SDLK_d:
+                    direct = RIGHT;
+                    break;
+                case SDLK_z:
+                    direct = UP;
+                    break;
+                default:
+                    break;
+                }
+                break;
+            case SDL_KEYUP:
+                switch(event.key.keysym.sym) {
+                    case SDLK_q:
+                    if(direct==LEFT)
+                        direct=NONE;
+                    break;
+                case SDLK_s:
+                    if(direct==DOWN)
+                        direct=NONE;
+                    break;
+                case SDLK_d:
+                    if(direct==RIGHT)
+                        direct=NONE;
+                    break;
+                case SDLK_z:
+                    if(direct==UP)
+                        direct=NONE;
+                    break;
+                default:
+                    break;
+                }
             default :
                 break;
             }
