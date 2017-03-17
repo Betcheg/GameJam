@@ -12,6 +12,6 @@ struct sprite {
     int step;
 
 };
-void initSprite();
+struct sprite *initSprite(SDL_Texture *text,SDL_Rect sizeofchar/*important w and h*/,int offsetwh,int offsettop);
 void drawOnScreen(SDL_Renderer *renderer,enum direction direct,SDL_Rect pos,struct sprite *src);//none would do nothing than draw man waiting
 #endif // SPRITEREADER_H_
