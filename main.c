@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <windows.h>
 #include <time.h>
+#include "spriteReader.h"
+
+
 #define SOUND_EFFECT "plasma_ar3.wav"
 #define MUS_PATH "8 bit Aracde.mp3"
 
@@ -92,14 +95,8 @@ int main(int argc, char** argv)
         SDL_RenderClear(sdlRenderer);
         SDL_RenderCopy(sdlRenderer,text,NULL, &(image_part->clip_rect));
         SDL_RenderPresent(sdlRenderer);
-        SDL_Rect essai={41,30,0,20};
-        essai.h=41;
-        essai.w=30;
-        essai.x=0;
-        essai.y=20;
         SDL_Rect mdr = {50,50,60,82};
-
-        int i=0;
+        struct sprite* sp = initSprite(mario_text,(SDL_Rect){0,0,30,41},2,20);
         while(continuer)
         {
             SDL_PollEvent(&event);
@@ -114,8 +111,7 @@ int main(int argc, char** argv)
                 mdr.x=(mdr.x+3)%640;
                 SDL_RenderClear(sdlRenderer);
                 SDL_SetRenderDrawColor(sdlRenderer, 255, 255, 0,255);
-                SDL_RenderClear(sdlRenderer);
-                SDL_RenderCopy(sdlRenderer,mario_text,&essai,&(mdr));
+                drawOnScreen(sdlRenderer,RIGHT,mdr,sp);
                 SDL_RenderPresent(sdlRenderer);
             default :
                 break;

@@ -76,5 +76,13 @@ void drawOnScreen(SDL_Renderer *renderer,enum direction direct,SDL_Rect pos,stru
     }
 }
 struct sprite *initSprite(SDL_Texture *text,SDL_Rect sizeofchar/*important w and h*/,int offsetwh,int offsettop) {
-
+    struct sprite *sp =(struct sprite*)malloc(sizeof(struct sprite));
+    sp->text=text;
+    sp->oneChar.x=sizeofchar.x;
+    sp->oneChar.y=sizeofchar.y;
+    sp->oneChar.h=sizeofchar.h;
+    sp->oneChar.w=sizeofchar.w;
+    sp->offsettop=offsettop;
+    sp->offsetwh=offsetwh;
+    return sp;
 }
